@@ -132,39 +132,40 @@ export const adicionarProfessor = async (nome, email, turmaId) => {
   }
 };
 
-// Função para associar o professor à turma
+// Função para inserir professor na turma
+// Função para inserir professor na turma
 export const inserirProfessorNaTurma = async (professorId, turmaId) => {
   try {
-    // Obter a referência da turma
+    if (!professorId || !turmaId) {
+      throw new Error('ID do professor ou da turma não fornecido');
+    }
+
     const turmaRef = doc(firestore, 'turmas', turmaId);
     const turmaSnapshot = await getDoc(turmaRef);
 
     // Verificar se a turma existe
-    if (turmaSnapshot.exists()) {
-      const turmaData = turmaSnapshot.data();
-      
-      // Se o campo de professores não existe, inicializa com um array vazio
-      const professoresAtualizados = turmaData.professores || [];
-      
-      // Adiciona o professor na lista de professores
-      professoresAtualizados.push(professorId);
-      
-      // Atualiza a turma no Firestore com a lista de professores
-      await updateDoc(turmaRef, { professores: professoresAtualizados });
-      console.log("Professor inserido na turma com sucesso.");
-    } else {
-      console.log("Turma não encontrada.");
+    if (!turmaSnapshot.exists()) {
+      console.log("A turma com esse ID não existe.");
+      return;
     }
+
+    const turmaData = turmaSnapshot.data();
+
+    // Verificar se a chave 'professores' existe na turma, se não, inicialize-a
+    const professoresAtualizados = turmaData.professores || [];
+    professoresAtualizados.push(professorId);
+
+    await updateDoc(turmaRef, { professores: professoresAtualizados });
+    console.log("Professor inserido na turma com sucesso.");
   } catch (e) {
     console.error("Erro ao inserir professor na turma:", e);
   }
 };
 
 
-
-// Função para excluir professor
 export const excluirProfessor = async (professorId, turmaId) => {
   try {
+    // Exclui o professor da coleção 'professores'
     const professorRef = doc(firestore, 'professores', professorId);
     await deleteDoc(professorRef);
     console.log("Professor excluído com sucesso.");
@@ -172,11 +173,19 @@ export const excluirProfessor = async (professorId, turmaId) => {
     // Atualiza a turma removendo o professor
     const turmaRef = doc(firestore, 'turmas', turmaId);
     const turmaSnapshot = await getDoc(turmaRef);
+
     if (turmaSnapshot.exists()) {
       const turmaData = turmaSnapshot.data();
-      const professoresAtualizados = turmaData.professores.filter(id => id !== professorId);
+
+      // Verifica se o campo 'professores' existe e é um array
+      const professoresAtualizados = Array.isArray(turmaData.professores)
+        ? turmaData.professores.filter(id => id !== professorId)
+        : [];
+
       await updateDoc(turmaRef, { professores: professoresAtualizados });
       console.log("Professor removido da turma com sucesso.");
+    } else {
+      console.log("Turma não encontrada.");
     }
   } catch (e) {
     console.error("Erro ao excluir professor:", e);

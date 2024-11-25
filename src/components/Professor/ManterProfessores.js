@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adicionarProfessor, excluirProfessor, atualizarProfessor } from '../../firebase';
-import { getDocs, collection } from 'firebase/firestore';
 import { firestore } from '../../firebase'; // Importando o firestore para buscar as turmas e professores
+import { collection, onSnapshot } from 'firebase/firestore';
 
 const ManterProfessores = () => {
   const [nome, setNome] = useState('');
@@ -12,29 +12,32 @@ const ManterProfessores = () => {
   const [professores, setProfessores] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Função para buscar turmas
-  const fetchTurmas = async () => {
-    const turmasSnapshot = await getDocs(collection(firestore, 'turmas'));
-    const turmasData = turmasSnapshot.docs.map(doc => ({
-      id: doc.id,
-      nome: doc.data().nome,
-    }));
-    setTurmas(turmasData);
-  };
-
-  // Função para buscar professores
-  const fetchProfessores = async () => {
-    const professoresSnapshot = await getDocs(collection(firestore, 'professores'));
-    const professoresData = professoresSnapshot.docs.map(doc => ({
-      id: doc.id,
-      nome: doc.data().nome,
-    }));
-    setProfessores(professoresData);
-  };
-
+  // Função para buscar turmas em tempo real
   useEffect(() => {
-    fetchTurmas();
-    fetchProfessores();
+    const turmasRef = collection(firestore, 'turmas');
+    const unsubscribeTurmas = onSnapshot(turmasRef, (snapshot) => {
+      const turmasData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        nome: doc.data().nome,
+      }));
+      setTurmas(turmasData);
+    });
+
+    // Função para buscar professores em tempo real
+    const professoresRef = collection(firestore, 'professores');
+    const unsubscribeProfessores = onSnapshot(professoresRef, (snapshot) => {
+      const professoresData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        nome: doc.data().nome,
+      }));
+      setProfessores(professoresData);
+    });
+
+    // Limpar os listeners quando o componente for desmontado
+    return () => {
+      unsubscribeTurmas();
+      unsubscribeProfessores();
+    };
   }, []);
 
   const handleCadastro = async () => {
@@ -43,10 +46,14 @@ const ManterProfessores = () => {
       return;
     }
 
-    await adicionarProfessor(nome, turmaId);
-    setNome('');
-    setTurmaId('');
-    setErrorMessage('');
+    try {
+      await adicionarProfessor(nome, turmaId);
+      setNome('');
+      setTurmaId('');
+      setErrorMessage('');
+    } catch (e) {
+      setErrorMessage("Erro ao adicionar professor.");
+    }
   };
 
   const handleExclusao = async () => {
@@ -55,10 +62,14 @@ const ManterProfessores = () => {
       return;
     }
 
-    await excluirProfessor(professorId, turmaId);
-    setProfessorId('');
-    setTurmaId('');
-    setErrorMessage('');
+    try {
+      await excluirProfessor(professorId, turmaId);
+      setProfessorId('');
+      setTurmaId('');
+      setErrorMessage('');
+    } catch (e) {
+      setErrorMessage("Erro ao excluir professor.");
+    }
   };
 
   const handleAtualizacao = async () => {
@@ -67,10 +78,14 @@ const ManterProfessores = () => {
       return;
     }
 
-    await atualizarProfessor(professorId, novosDados);
-    setProfessorId('');
-    setNovosDados({ nome: '', turmaId: '' });
-    setErrorMessage('');
+    try {
+      await atualizarProfessor(professorId, novosDados);
+      setProfessorId('');
+      setNovosDados({ nome: '', turmaId: '' });
+      setErrorMessage('');
+    } catch (e) {
+      setErrorMessage("Erro ao atualizar professor.");
+    }
   };
 
   return (
