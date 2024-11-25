@@ -1,25 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { auth } from './firebase';  // Importando a autenticação do Firebase
+import RoutesComponent from './RoutesComponent';  // Importando o arquivo de rotas
 
-function App() {
+const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(setUser);  // Atualizando o estado do usuário no login
+    return () => unsubscribe();  // Limpeza do listener
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <RoutesComponent user={user} setUser={setUser} />
+    </Router>
   );
-}
+};
 
 export default App;
