@@ -21,25 +21,36 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const firestore = getFirestore(app);
 
+// Função para adicionar nota ao aluno
+export const adicionarNota = async (alunoId, disciplinaId, nota) => {
+  try {
+    const alunoRef = doc(firestore, 'alunos', alunoId);
+    await updateDoc(alunoRef, { [`notas.${disciplinaId}`]: nota });  // Adiciona a nota para a disciplina
+    console.log("Nota adicionada com sucesso.");
+  } catch (e) {
+    console.error("Erro ao adicionar nota:", e);
+    throw e;
+  }
+};
+
 // Função para login com email e senha
 export const loginWithEmailAndPassword = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password);  
 };
-
 // Função para adicionar aluno
 export const adicionarAluno = async (nome, email, turmaId) => {
   try {
-    // Cria o novo aluno na coleção 'alunos'
-    const docRef = await addDoc(collection(firestore, "alunos"), {
+    // Adiciona o aluno na coleção 'alunos'
+    const alunoRef = await addDoc(collection(firestore, "alunos"), {
       nome: nome,
       email: email,
-      turmaId: turmaId,  // Associa o aluno à turma
+      turmaId: turmaId,  // Associando o aluno à turma
     });
-    console.log("Aluno adicionado com ID:", docRef.id);
-    // Após adicionar, também pode associar o aluno à turma
-    await adicionarAlunoNaTurma(docRef.id, turmaId);
+    console.log("Aluno adicionado com ID:", alunoRef.id);
+    return alunoRef.id;
   } catch (e) {
     console.error("Erro ao adicionar aluno:", e);
+    throw new Error("Erro ao adicionar aluno.");
   }
 };
 
@@ -50,20 +61,22 @@ export const adicionarAlunoNaTurma = async (alunoId, turmaId) => {
     const turmaSnapshot = await getDoc(turmaRef);
     if (turmaSnapshot.exists()) {
       const turmaData = turmaSnapshot.data();
-      const alunosAtualizados = [...turmaData.alunos, alunoId];  // Adiciona o aluno à lista de alunos da turma
+      const alunosAtualizados = [...turmaData.alunos, alunoId];
       await updateDoc(turmaRef, { alunos: alunosAtualizados });
       console.log("Aluno inserido na turma com sucesso.");
     }
   } catch (e) {
     console.error("Erro ao inserir aluno na turma:", e);
+    throw e;
   }
 };
+
 
 // Função para excluir aluno
 export const excluirAluno = async (alunoId, turmaId) => {
   try {
     // Exclui o aluno da coleção 'alunos'
-    const alunoRef = doc(firestore, 'alunos', alunoId);
+    const alunoRef = doc(firestore, "alunos", alunoId);
     await deleteDoc(alunoRef);
     console.log("Aluno excluído com sucesso.");
 
@@ -78,17 +91,54 @@ export const excluirAluno = async (alunoId, turmaId) => {
     }
   } catch (e) {
     console.error("Erro ao excluir aluno:", e);
+    throw new Error("Erro ao excluir aluno.");
   }
 };
+
 
 // Função para atualizar aluno
 export const atualizarAluno = async (alunoId, novosDados) => {
   try {
     const alunoRef = doc(firestore, 'alunos', alunoId);
-    await updateDoc(alunoRef, novosDados);  // Atualiza os dados do aluno
+
+    // Atualiza os dados do aluno na coleção 'alunos'
+    await updateDoc(alunoRef, novosDados);
+
     console.log("Aluno atualizado com sucesso.");
+
+    // Verificar se a turma do aluno foi alterada e atualizar na turma
+    if (novosDados.turmaId) {
+      // Atualizar aluno na turma
+      await atualizarAlunoNaTurma(alunoId, novosDados.turmaId);
+    }
+
   } catch (e) {
     console.error("Erro ao atualizar aluno:", e);
+  }
+};
+
+// Função para atualizar o aluno na turma, se necessário
+export const atualizarAlunoNaTurma = async (alunoId, novaTurmaId) => {
+  try {
+    // Referência para a nova turma
+    const novaTurmaRef = doc(firestore, 'turmas', novaTurmaId);
+    const novaTurmaSnapshot = await getDoc(novaTurmaRef);
+
+    if (novaTurmaSnapshot.exists()) {
+      const novaTurmaData = novaTurmaSnapshot.data();
+
+      // Se a turma já tiver alunos, adiciona o aluno na nova lista
+      const alunosAtualizados = novaTurmaData.alunos ? [...novaTurmaData.alunos, alunoId] : [alunoId];
+
+      // Atualiza a nova turma com a lista de alunos
+      await updateDoc(novaTurmaRef, { alunos: alunosAtualizados });
+
+      console.log("Aluno atualizado na nova turma com sucesso.");
+    } else {
+      console.log("A nova turma não foi encontrada.");
+    }
+  } catch (e) {
+    console.error("Erro ao atualizar aluno na nova turma:", e);
   }
 };
 
@@ -132,7 +182,6 @@ export const adicionarProfessor = async (nome, email, turmaId) => {
   }
 };
 
-// Função para inserir professor na turma
 // Função para inserir professor na turma
 export const inserirProfessorNaTurma = async (professorId, turmaId) => {
   try {
@@ -202,31 +251,32 @@ export const atualizarProfessor = async (professorId, novosDados) => {
     console.error("Erro ao atualizar professor:", e);
   }
 };
-
 // Função para adicionar disciplina
 export const adicionarDisciplina = async (nome, turmaId) => {
   try {
+    // Criando um novo documento para a disciplina
     const docRef = await addDoc(collection(firestore, "disciplinas"), {
       nome: nome,
       turmaId: turmaId, // Associa a disciplina à turma
     });
     console.log("Disciplina adicionada com ID:", docRef.id);
-    // Após adicionar, também pode associar a disciplina à turma
+
+    // Após adicionar, também associa a disciplina à turma
     await inserirDisciplinaNaTurma(docRef.id, turmaId);
   } catch (e) {
     console.error("Erro ao adicionar disciplina:", e);
   }
 };
 
-
-// Função para associar disciplina à turma
+// Função para associar a disciplina à turma
 export const inserirDisciplinaNaTurma = async (disciplinaId, turmaId) => {
   try {
     const turmaRef = doc(firestore, 'turmas', turmaId);
     const turmaSnapshot = await getDoc(turmaRef);
     if (turmaSnapshot.exists()) {
       const turmaData = turmaSnapshot.data();
-      const disciplinasAtualizadas = [...turmaData.disciplinas, disciplinaId];  // Adiciona a disciplina à lista de disciplinas da turma
+      const disciplinasAtualizadas = turmaData.disciplinas || [];
+      disciplinasAtualizadas.push(disciplinaId);  // Adiciona a disciplina à lista de disciplinas da turma
       await updateDoc(turmaRef, { disciplinas: disciplinasAtualizadas });
       console.log("Disciplina inserida na turma com sucesso.");
     }
