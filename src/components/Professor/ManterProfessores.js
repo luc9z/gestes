@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { adicionarProfessor, excluirProfessor, atualizarProfessor } from '../../firebase';
-import { firestore } from '../../firebase'; // Importando o firestore para buscar as turmas e professores
+import { firestore } from '../../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
+import './ManterProfessores.css';
 
 const ManterProfessores = () => {
   const [nome, setNome] = useState('');
@@ -42,7 +43,7 @@ const ManterProfessores = () => {
 
   const handleCadastro = async () => {
     if (!nome || !turmaId) {
-      setErrorMessage("Nome do professor e turma são obrigatórios.");
+      setErrorMessage('Nome do professor e turma são obrigatórios.');
       return;
     }
 
@@ -52,13 +53,13 @@ const ManterProfessores = () => {
       setTurmaId('');
       setErrorMessage('');
     } catch (e) {
-      setErrorMessage("Erro ao adicionar professor.");
+      setErrorMessage('Erro ao adicionar professor.');
     }
   };
 
   const handleExclusao = async () => {
     if (!professorId || !turmaId) {
-      setErrorMessage("Selecione o professor e a turma.");
+      setErrorMessage('Selecione o professor e a turma.');
       return;
     }
 
@@ -68,13 +69,13 @@ const ManterProfessores = () => {
       setTurmaId('');
       setErrorMessage('');
     } catch (e) {
-      setErrorMessage("Erro ao excluir professor.");
+      setErrorMessage('Erro ao excluir professor.');
     }
   };
 
   const handleAtualizacao = async () => {
     if (!professorId || !novosDados.turmaId) {
-      setErrorMessage("Selecione o professor e a nova turma.");
+      setErrorMessage('Selecione o professor e a nova turma.');
       return;
     }
 
@@ -84,23 +85,23 @@ const ManterProfessores = () => {
       setNovosDados({ nome: '', turmaId: '' });
       setErrorMessage('');
     } catch (e) {
-      setErrorMessage("Erro ao atualizar professor.");
+      setErrorMessage('Erro ao atualizar professor.');
     }
   };
 
   return (
-    <div>
+    <div className="manter-professores-container">
       <h2>Cadastro de Professor</h2>
-      <div>
-        <input 
-          type="text" 
-          placeholder="Nome do Professor" 
-          value={nome} 
-          onChange={(e) => setNome(e.target.value)} 
+      <div className="form-group">
+        <input
+          type="text"
+          placeholder="Nome do Professor"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
         />
-        <select 
-          value={turmaId} 
-          onChange={(e) => setTurmaId(e.target.value)} 
+        <select
+          value={turmaId}
+          onChange={(e) => setTurmaId(e.target.value)}
         >
           <option value="">Selecione uma turma</option>
           {turmas.map(turma => (
@@ -113,10 +114,10 @@ const ManterProfessores = () => {
       </div>
 
       <h2>Excluir Professor</h2>
-      <div>
-        <select 
-          value={professorId} 
-          onChange={(e) => setProfessorId(e.target.value)} 
+      <div className="form-group">
+        <select
+          value={professorId}
+          onChange={(e) => setProfessorId(e.target.value)}
         >
           <option value="">Selecione um professor</option>
           {professores.map(professor => (
@@ -125,9 +126,9 @@ const ManterProfessores = () => {
             </option>
           ))}
         </select>
-        <select 
-          value={turmaId} 
-          onChange={(e) => setTurmaId(e.target.value)} 
+        <select
+          value={turmaId}
+          onChange={(e) => setTurmaId(e.target.value)}
         >
           <option value="">Selecione uma turma</option>
           {turmas.map(turma => (
@@ -140,10 +141,10 @@ const ManterProfessores = () => {
       </div>
 
       <h2>Atualizar Professor</h2>
-      <div>
-        <select 
-          value={professorId} 
-          onChange={(e) => setProfessorId(e.target.value)} 
+      <div className="form-group">
+        <select
+          value={professorId}
+          onChange={(e) => setProfessorId(e.target.value)}
         >
           <option value="">Selecione um professor</option>
           {professores.map(professor => (
@@ -152,9 +153,9 @@ const ManterProfessores = () => {
             </option>
           ))}
         </select>
-        <select 
-          value={novosDados.turmaId} 
-          onChange={(e) => setNovosDados({ ...novosDados, turmaId: e.target.value })} 
+        <select
+          value={novosDados.turmaId}
+          onChange={(e) => setNovosDados({ ...novosDados, turmaId: e.target.value })}
         >
           <option value="">Selecione a nova turma</option>
           {turmas.map(turma => (
@@ -166,8 +167,7 @@ const ManterProfessores = () => {
         <button onClick={handleAtualizacao}>Atualizar Professor</button>
       </div>
 
-      {/* Exibindo a mensagem de erro */}
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
     </div>
   );
 };

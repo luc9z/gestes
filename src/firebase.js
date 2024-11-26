@@ -72,26 +72,36 @@ export const adicionarAlunoNaTurma = async (alunoId, turmaId) => {
 };
 
 
-// Função para excluir aluno
 export const excluirAluno = async (alunoId, turmaId) => {
   try {
+    if (!alunoId || !turmaId) {
+      console.error("ID do aluno ou da turma não foi fornecido.");
+      throw new Error("ID do aluno ou da turma não fornecido.");
+    }
+
     // Exclui o aluno da coleção 'alunos'
-    const alunoRef = doc(firestore, "alunos", alunoId);
+    const alunoRef = doc(firestore, 'alunos', alunoId);
     await deleteDoc(alunoRef);
     console.log("Aluno excluído com sucesso.");
 
-    // Atualiza a turma removendo o aluno
+    // Atualiza a turma, removendo o aluno
     const turmaRef = doc(firestore, 'turmas', turmaId);
     const turmaSnapshot = await getDoc(turmaRef);
+
     if (turmaSnapshot.exists()) {
       const turmaData = turmaSnapshot.data();
-      const alunosAtualizados = turmaData.alunos.filter(id => id !== alunoId);  // Remove o aluno da lista
+      // Filtra a lista de alunos, removendo o aluno excluído
+      const alunosAtualizados = turmaData.alunos.filter(id => id !== alunoId);
+
+      // Atualiza a lista de alunos na turma
       await updateDoc(turmaRef, { alunos: alunosAtualizados });
       console.log("Aluno removido da turma com sucesso.");
+    } else {
+      throw new Error("Turma não encontrada.");
     }
   } catch (e) {
     console.error("Erro ao excluir aluno:", e);
-    throw new Error("Erro ao excluir aluno.");
+    throw e;
   }
 };
 

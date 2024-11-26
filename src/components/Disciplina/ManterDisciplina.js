@@ -101,84 +101,84 @@ const ManterDisciplina = () => {
   };
 
   return (
-      <div>
-        <h2>Cadastro de Disciplina</h2>
-        <div>
-          <input
-              type="text"
-              placeholder="Nome da Disciplina"
-              value={nomeDisciplina}
-              onChange={(e) => setNomeDisciplina(e.target.value)}
-          />
-          <select value={turmaId} onChange={(e) => setTurmaId(e.target.value)}>
-            <option value="">Selecione uma turma</option>
-            {turmas.map(turma => (
-                <option key={turma.id} value={turma.id}>
-                  {turma.nome}
-                </option>
-            ))}
-          </select>
-          <select value={professorId} onChange={(e) => setProfessorId(e.target.value)}>
-            <option value="">Selecione um professor</option>
-            {professores.map(professor => (
-                <option key={professor.id} value={professor.id}>
-                  {professor.nome}
-                </option>
-            ))}
-          </select>
-          <button onClick={handleCadastro}>Cadastrar Disciplina</button>
-        </div>
-
-        <h2>Excluir Disciplina</h2>
-        <div>
-          <select value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)}>
-            <option value="">Selecione uma disciplina</option>
-            {disciplinas.map(disciplina => (
-                <option key={disciplina.id} value={disciplina.id}>
-                  {disciplina.nome}
-                </option>
-            ))}
-          </select>
-          <button onClick={handleExclusao}>Excluir Disciplina</button>
-        </div>
-
-        <h2>Atualizar Disciplina</h2>
-        <div>
-          <select value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)}>
-            <option value="">Selecione uma disciplina</option>
-            {disciplinas.map(disciplina => (
-                <option key={disciplina.id} value={disciplina.id}>
-                  {disciplina.nome}
-                </option>
-            ))}
-          </select>
-          <select
-              value={novosDados.turmaId}
-              onChange={(e) => setNovosDados({ ...novosDados, turmaId: e.target.value })}
-          >
-            <option value="">Selecione a nova turma</option>
-            {turmas.map(turma => (
-                <option key={turma.id} value={turma.id}>
-                  {turma.nome}
-                </option>
-            ))}
-          </select>
-          <select
-              value={novosDados.professorId}
-              onChange={(e) => setNovosDados({ ...novosDados, professorId: e.target.value })}
-          >
-            <option value="">Selecione o novo professor</option>
-            {professores.map(professor => (
-                <option key={professor.id} value={professor.id}>
-                  {professor.nome}
-                </option>
-            ))}
-          </select>
-          <button onClick={handleAtualizacao}>Atualizar Disciplina</button>
-        </div>
-
-        {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
-      </div>
+    <div className="manter-disciplina-container">
+    <h2>Cadastro de Disciplina</h2>
+    <div className="form-group">
+      <input
+        type="text"
+        placeholder="Nome da Disciplina"
+        value={nomeDisciplina}
+        onChange={(e) => setNomeDisciplina(e.target.value)}
+      />
+      <select value={turmaId} onChange={(e) => setTurmaId(e.target.value)}>
+        <option value="">Selecione uma turma</option>
+        {turmas.map(turma => (
+          <option key={turma.id} value={turma.id}>
+            {turma.nome}
+          </option>
+        ))}
+      </select>
+      <select value={professorId} onChange={(e) => setProfessorId(e.target.value)}>
+        <option value="">Selecione um professor</option>
+        {professores.map(professor => (
+          <option key={professor.id} value={professor.id}>
+            {professor.nome}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleCadastro}>Cadastrar Disciplina</button>
+    </div>
+  
+    <h2>Excluir Disciplina</h2>
+    <div className="form-group">
+      <select value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)}>
+        <option value="">Selecione uma disciplina</option>
+        {disciplinas.map(disciplina => (
+          <option key={disciplina.id} value={disciplina.id}>
+            {disciplina.nome}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleExclusao}>Excluir Disciplina</button>
+    </div>
+  
+    <h2>Atualizar Disciplina</h2>
+    <div className="form-group">
+      <select value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)}>
+        <option value="">Selecione uma disciplina</option>
+        {disciplinas.map(disciplina => (
+          <option key={disciplina.id} value={disciplina.id}>
+            {disciplina.nome}
+          </option>
+        ))}
+      </select>
+      <select
+        value={novosDados.turmaId}
+        onChange={(e) => setNovosDados({ ...novosDados, turmaId: e.target.value })}
+      >
+        <option value="">Selecione a nova turma</option>
+        {turmas.map(turma => (
+          <option key={turma.id} value={turma.id}>
+            {turma.nome}
+          </option>
+        ))}
+      </select>
+      <select
+        value={novosDados.professorId}
+        onChange={(e) => setNovosDados({ ...novosDados, professorId: e.target.value })}
+      >
+        <option value="">Selecione o novo professor</option>
+        {professores.map(professor => (
+          <option key={professor.id} value={professor.id}>
+            {professor.nome}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleAtualizacao}>Atualizar Disciplina</button>
+    </div>
+  
+    {errorMessage && <div className="error-message">{errorMessage}</div>}
+  </div>  
   );
 };
 
