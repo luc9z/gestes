@@ -1,0 +1,63 @@
+.manter-notas-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    text-align: center;
+    color: #007bff;
+  }
+  
+  .filtro-turma, .filtro-disciplina, .filtro-aluno, .campo-nota {
+    margin-bottom: 20px;
+  }
+  
+  .filtro-turma select,
+  .filtro-disciplina select,
+  .filtro-aluno select,
+  .campo-nota input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #218838;
+  }
+  
+  .notas-existentes {
+    margin-top: 30px;
+  }
+  
+  .notas-existentes table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .notas-existentes th, .notas-existentes td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .notas-existentes th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  

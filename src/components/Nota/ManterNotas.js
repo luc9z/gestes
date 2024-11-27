@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../../firebase';
 import { getDocs, collection, query, where, doc, getDoc, setDoc } from 'firebase/firestore';
+import './ManterNotas.css';  // Estilos podem ser aplicados aqui
 
 const ManterNotas = () => {
   const [turmaId, setTurmaId] = useState('');
@@ -11,6 +12,7 @@ const ManterNotas = () => {
   const [disciplinas, setDisciplinas] = useState([]);
   const [alunos, setAlunos] = useState([]);
   const [erro, setErro] = useState('');
+  const [notas, setNotas] = useState([]);
 
   // Carregar turmas
   useEffect(() => {
@@ -47,7 +49,6 @@ const ManterNotas = () => {
       }
 
       try {
-        // Busca a turma diretamente pelo ID
         const turmaRef = doc(firestore, 'turmas', turmaId);
         const turmaSnapshot = await getDoc(turmaRef);
 
@@ -60,9 +61,6 @@ const ManterNotas = () => {
         const turma = turmaSnapshot.data();
         const alunoIds = turma.alunos || [];
 
-        console.log('IDs dos alunos:', alunoIds);
-
-        // Buscar os alunos associados
         const alunosCarregados = await Promise.all(
           alunoIds.map(async id => {
             const alunoRef = doc(firestore, 'alunos', id);
@@ -75,8 +73,7 @@ const ManterNotas = () => {
           })
         );
 
-        const alunosValidos = alunosCarregados.filter(Boolean); // Remove entradas inválidas
-        console.log('Dados dos alunos carregados:', alunosValidos);
+        const alunosValidos = alunosCarregados.filter(Boolean);
         setAlunos(alunosValidos);
       } catch (error) {
         console.error('Erro ao carregar alunos:', error);
@@ -86,6 +83,33 @@ const ManterNotas = () => {
 
     carregarAlunos();
   }, [turmaId]);
+
+  // Carregar notas da turma e disciplina selecionada
+  useEffect(() => {
+    const carregarNotas = async () => {
+      if (!turmaId || !disciplinaId) {
+        setNotas([]);
+        return;
+      }
+
+      try {
+        const notasRef = collection(firestore, 'notas');
+        const q = query(notasRef, where('turmaId', '==', turmaId), where('disciplinaId', '==', disciplinaId));
+        const notasSnapshot = await getDocs(q);
+
+        const notasData = notasSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotas(notasData);
+      } catch (error) {
+        console.error('Erro ao carregar notas:', error);
+        setNotas([]);
+      }
+    };
+
+    carregarNotas();
+  }, [turmaId, disciplinaId]);
 
   // Salvar nota no Firestore
   const handleSalvarNota = async () => {
@@ -113,12 +137,13 @@ const ManterNotas = () => {
   };
 
   return (
-    <div>
+    <div className="manter-notas-container">
       <h2>Gerenciar Notas</h2>
 
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      <div>
+      {/* Seletor de Turma */}
+      <div className="filtro-turma">
         <label>Turma:</label>
         <select value={turmaId} onChange={e => setTurmaId(e.target.value)}>
           <option value="">Selecione uma turma</option>
@@ -130,7 +155,8 @@ const ManterNotas = () => {
         </select>
       </div>
 
-      <div>
+      {/* Seletor de Disciplina */}
+      <div className="filtro-disciplina">
         <label>Disciplina:</label>
         <select value={disciplinaId} onChange={e => setDisciplinaId(e.target.value)}>
           <option value="">Selecione uma disciplina</option>
@@ -142,7 +168,8 @@ const ManterNotas = () => {
         </select>
       </div>
 
-      <div>
+      {/* Seletor de Aluno */}
+      <div className="filtro-aluno">
         <label>Aluno:</label>
         <select value={alunoId} onChange={e => setAlunoId(e.target.value)}>
           <option value="">Selecione um aluno</option>
@@ -154,7 +181,8 @@ const ManterNotas = () => {
         </select>
       </div>
 
-      <div>
+      {/* Campo de Nota */}
+      <div className="campo-nota">
         <label>Nota:</label>
         <input
           type="number"
@@ -164,7 +192,29 @@ const ManterNotas = () => {
         />
       </div>
 
+      {/* Botão para Salvar Nota */}
       <button onClick={handleSalvarNota}>Salvar Nota</button>
+
+      {/* Exibir Notas Existentes */}
+      <div className="notas-existentes">
+        <h3>Notas Existentes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Aluno</th>
+              <th>Nota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {notas.map(nota => (
+              <tr key={nota.id}>
+                <td>{nota.alunoId}</td>
+                <td>{nota.nota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

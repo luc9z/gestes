@@ -177,16 +177,16 @@ export const gerarRelatorioPresenca = async (turmaId) => {
   return presencas;  // Retorna o relatório de presença
 };
 
-// Função para adicionar professor
 export const adicionarProfessor = async (nome, email, turmaId) => {
   try {
+    // Cria o professor com a turmaId diretamente
     const docRef = await addDoc(collection(firestore, "professores"), {
       nome: nome,
       email: email,
+      turmaId: turmaId, // Associando a turma diretamente ao professor
     });
     console.log("Professor adicionado com ID:", docRef.id);
-    // Após adicionar, associa o professor à turma
-    await inserirProfessorNaTurma(docRef.id, turmaId);
+    return docRef.id;
   } catch (e) {
     console.error("Erro ao adicionar professor:", e);
   }
@@ -251,11 +251,10 @@ export const excluirProfessor = async (professorId, turmaId) => {
   }
 };
 
-// Função para atualizar professor
-export const atualizarProfessor = async (professorId, novosDados) => {
+export const atualizarProfessor = async (professorId, dadosAtualizados) => {
   try {
-    const professorRef = doc(firestore, 'professores', professorId);
-    await updateDoc(professorRef, novosDados); // Atualiza os dados do professor
+    const professorRef = doc(firestore, "professores", professorId);
+    await updateDoc(professorRef, dadosAtualizados);  // Atualizando todos os campos, incluindo a turma
     console.log("Professor atualizado com sucesso.");
   } catch (e) {
     console.error("Erro ao atualizar professor:", e);

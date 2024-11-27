@@ -3,171 +3,233 @@ import { adicionarProfessor, excluirProfessor, atualizarProfessor } from '../../
 import { firestore } from '../../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import './ManterProfessores.css';
+import addIcon from '../../assets/add-icon.png';
+import editIcon from '../../assets/edit-icon.png';
+import deleteIcon from '../../assets/delete-icon.png';
 
 const ManterProfessores = () => {
   const [nome, setNome] = useState('');
-  const [turmaId, setTurmaId] = useState('');
-  const [professorId, setProfessorId] = useState('');
-  const [novosDados, setNovosDados] = useState({ nome: '', turmaId: '' });
-  const [turmas, setTurmas] = useState([]);
+  const [email, setEmail] = useState('');
+  const [turmaId, setTurmaId] = useState(''); // Controlando a turma
   const [professores, setProfessores] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [turmas, setTurmas] = useState([]);
+  const [professorParaEditar, setProfessorParaEditar] = useState(null);
+  const [formVisivel, setFormVisivel] = useState(false);
+  const [filtroTurma, setFiltroTurma] = useState('');
 
-  // Função para buscar turmas em tempo real
+  // Carrega turmas e professores
   useEffect(() => {
-    const turmasRef = collection(firestore, 'turmas');
-    const unsubscribeTurmas = onSnapshot(turmasRef, (snapshot) => {
-      const turmasData = snapshot.docs.map(doc => ({
+    const unsubscribeTurmas = onSnapshot(collection(firestore, 'turmas'), (snapshot) => {
+      const turmasData = snapshot.docs.map((doc) => ({
         id: doc.id,
         nome: doc.data().nome,
       }));
       setTurmas(turmasData);
     });
 
-    // Função para buscar professores em tempo real
-    const professoresRef = collection(firestore, 'professores');
-    const unsubscribeProfessores = onSnapshot(professoresRef, (snapshot) => {
-      const professoresData = snapshot.docs.map(doc => ({
+    const unsubscribeProfessores = onSnapshot(collection(firestore, 'professores'), (snapshot) => {
+      const professoresData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        nome: doc.data().nome,
+        ...doc.data(),
       }));
       setProfessores(professoresData);
     });
 
-    // Limpar os listeners quando o componente for desmontado
     return () => {
       unsubscribeTurmas();
       unsubscribeProfessores();
     };
   }, []);
 
-  const handleCadastro = async () => {
-    if (!nome || !turmaId) {
-      setErrorMessage('Nome do professor e turma são obrigatórios.');
+  // Adicionar professor ao Firestore
+  const handleAdicionarProfessor = async (e) => {
+    e.preventDefault();
+    if (!nome || !email || !turmaId) {
+      alert('Preencha todos os campos!');
       return;
     }
 
     try {
-      await adicionarProfessor(nome, turmaId);
+      await adicionarProfessor(nome, email, turmaId);  // Incluindo turmaId ao adicionar
       setNome('');
-      setTurmaId('');
-      setErrorMessage('');
-    } catch (e) {
-      setErrorMessage('Erro ao adicionar professor.');
+      setEmail('');
+      setTurmaId(''); // Resetando turmaId após o cadastro
+      setFormVisivel(false);
+    } catch (error) {
+      alert('Erro ao adicionar professor.');
     }
   };
 
-  const handleExclusao = async () => {
-    if (!professorId || !turmaId) {
-      setErrorMessage('Selecione o professor e a turma.');
-      return;
+  // Excluir professor
+  const handleExcluirProfessor = async (id) => {
+    try {
+      await excluirProfessor(id);
+    } catch (error) {
+      alert('Erro ao excluir professor.');
     }
+  };
+
+  // Editar professor
+  const handleEditarProfessor = (professor) => {
+    setProfessorParaEditar(professor);
+    setTurmaId(professor.turmaId); // Setando a turma do professor ao editar
+  };
+
+  // Salvar edições no professor
+  const salvarEdicao = async () => {
+    if (!professorParaEditar) return;
+
+    // Atualizando a turma do professor para a turmaId selecionada
+    const dadosAtualizados = {
+      nome: professorParaEditar.nome,
+      email: professorParaEditar.email,
+      turmaId: turmaId,  // Incluindo a turmaId no objeto de atualização
+    };
 
     try {
-      await excluirProfessor(professorId, turmaId);
-      setProfessorId('');
-      setTurmaId('');
-      setErrorMessage('');
-    } catch (e) {
-      setErrorMessage('Erro ao excluir professor.');
+      await atualizarProfessor(professorParaEditar.id, dadosAtualizados);
+      setProfessorParaEditar(null);
+      setTurmaId(''); // Resetando a turma após editar
+    } catch (error) {
+      alert('Erro ao atualizar professor.');
     }
   };
 
-  const handleAtualizacao = async () => {
-    if (!professorId || !novosDados.turmaId) {
-      setErrorMessage('Selecione o professor e a nova turma.');
-      return;
-    }
-
-    try {
-      await atualizarProfessor(professorId, novosDados);
-      setProfessorId('');
-      setNovosDados({ nome: '', turmaId: '' });
-      setErrorMessage('');
-    } catch (e) {
-      setErrorMessage('Erro ao atualizar professor.');
-    }
-  };
+  // Filtra os professores conforme a turma selecionada
+  const professoresFiltrados = filtroTurma
+    ? professores.filter((professor) => professor.turmaId === filtroTurma)
+    : professores;
 
   return (
     <div className="manter-professores-container">
-      <h2>Cadastro de Professor</h2>
-      <div className="form-group">
-        <input
-          type="text"
-          placeholder="Nome do Professor"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
+      <h2>Manter Professores</h2>
+      <div className="filtro-turma">
+        <label htmlFor="turma">Selecione uma turma:</label>
         <select
-          value={turmaId}
-          onChange={(e) => setTurmaId(e.target.value)}
+          id="turma"
+          value={filtroTurma}
+          onChange={(e) => setFiltroTurma(e.target.value)}
         >
-          <option value="">Selecione uma turma</option>
-          {turmas.map(turma => (
+          <option value="">Todas as turmas</option>
+          {turmas.map((turma) => (
             <option key={turma.id} value={turma.id}>
               {turma.nome}
             </option>
           ))}
         </select>
-        <button onClick={handleCadastro}>Cadastrar Professor</button>
       </div>
 
-      <h2>Excluir Professor</h2>
-      <div className="form-group">
-        <select
-          value={professorId}
-          onChange={(e) => setProfessorId(e.target.value)}
-        >
-          <option value="">Selecione um professor</option>
-          {professores.map(professor => (
-            <option key={professor.id} value={professor.id}>
-              {professor.nome}
-            </option>
+      <h3>Professores na Turma</h3>
+      <table className="professores-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {professoresFiltrados.map((professor) => (
+            <tr key={professor.id}>
+              <td>{professor.nome}</td>
+              <td>{professor.email}</td>
+              <td>
+                <button onClick={() => handleEditarProfessor(professor)}>
+                  <img src={editIcon} alt="Editar" />
+                </button>
+                <button onClick={() => handleExcluirProfessor(professor.id)}>
+                  <img src={deleteIcon} alt="Excluir" />
+                </button>
+              </td>
+            </tr>
           ))}
-        </select>
-        <select
-          value={turmaId}
-          onChange={(e) => setTurmaId(e.target.value)}
-        >
-          <option value="">Selecione uma turma</option>
-          {turmas.map(turma => (
-            <option key={turma.id} value={turma.id}>
-              {turma.nome}
-            </option>
-          ))}
-        </select>
-        <button onClick={handleExclusao}>Excluir Professor</button>
+        </tbody>
+      </table>
+
+      <div className="adicionar-professor">
+        <button className="add-button" onClick={() => setFormVisivel(!formVisivel)}>
+          <img src={addIcon} alt="Adicionar" />
+        </button>
       </div>
 
-      <h2>Atualizar Professor</h2>
-      <div className="form-group">
-        <select
-          value={professorId}
-          onChange={(e) => setProfessorId(e.target.value)}
-        >
-          <option value="">Selecione um professor</option>
-          {professores.map(professor => (
-            <option key={professor.id} value={professor.id}>
-              {professor.nome}
-            </option>
-          ))}
-        </select>
-        <select
-          value={novosDados.turmaId}
-          onChange={(e) => setNovosDados({ ...novosDados, turmaId: e.target.value })}
-        >
-          <option value="">Selecione a nova turma</option>
-          {turmas.map(turma => (
-            <option key={turma.id} value={turma.id}>
-              {turma.nome}
-            </option>
-          ))}
-        </select>
-        <button onClick={handleAtualizacao}>Atualizar Professor</button>
-      </div>
+      {formVisivel && (
+        <div className="form-adicionar">
+          <h3>Adicionar Professor</h3>
+          <form onSubmit={handleAdicionarProfessor}>
+            <input
+              type="text"
+              placeholder="Nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <select
+              value={turmaId}
+              onChange={(e) => setTurmaId(e.target.value)}
+            >
+              <option value="">Selecione uma turma</option>
+              {turmas.map((turma) => (
+                <option key={turma.id} value={turma.id}>
+                  {turma.nome}
+                </option>
+              ))}
+            </select>
+            <button type="submit">Adicionar</button>
+          </form>
+        </div>
+      )}
 
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {professorParaEditar && (
+        <div className="editar-professor">
+          <h3>Editar Professor</h3>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              salvarEdicao();
+            }}
+          >
+            <input
+              type="text"
+              value={professorParaEditar.nome}
+              onChange={(e) =>
+                setProfessorParaEditar({ ...professorParaEditar, nome: e.target.value })
+              }
+            />
+            <input
+              type="email"
+              value={professorParaEditar.email}
+              onChange={(e) =>
+                setProfessorParaEditar({ ...professorParaEditar, email: e.target.value })
+              }
+            />
+            <select
+              value={turmaId} // Mudando para o valor atual de turmaId ao editar
+              onChange={(e) => {
+                setTurmaId(e.target.value); // Atualizando o estado de turmaId
+                setProfessorParaEditar({
+                  ...professorParaEditar,
+                  turmaId: e.target.value,  // Atualizando também o turmaId no estado do professor
+                });
+              }}
+            >
+              {turmas.map((turma) => (
+                <option key={turma.id} value={turma.id}>
+                  {turma.nome}
+                </option>
+              ))}
+            </select>
+            <button type="submit">Salvar</button>
+            <button type="button" onClick={() => setProfessorParaEditar(null)}>
+              Cancelar
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,58 +1,191 @@
 .manter-professores-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  h2 {
-    text-align: center;
-    color: #007BFF;
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 30px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #333;
-  }
-  
-  input, select, button {
-    font-size: 16px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  button {
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
-    background-color: #218838;
-  }
-  
-  .form-group select {
-    background-color: #f9f9f9;
-  }
-  
-  .error-message {
-    color: red;
-    text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
-  }
-  
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Centraliza todo o conteúdo da container */
+}
+
+h2 {
+  color: #007BFF;
+  margin-bottom: 20px;
+}
+
+.filtro-turma {
+  display: flex;
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Alinha verticalmente */
+  margin-bottom: 20px;
+}
+
+.filtro-turma label {
+  font-weight: bold;
+  margin-right: 10px;
+  color: #333;
+}
+
+.filtro-turma select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  width: 200px; /* Largura da seleção */
+}
+
+.professores-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.professores-table th, .professores-table td {
+  text-align: left;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.professores-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #333;
+}
+
+.professores-table td {
+  background-color: #fff;
+  color: #555;
+}
+
+.professores-table td button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.professores-table td button img {
+  width: 20px;
+  height: 20px;
+}
+
+.adicionar-professor {
+  display: flex;
+  justify-content: center; /* Centraliza o conteúdo dentro da div */
+  align-items: center; /* Alinha verticalmente */
+  margin-top: 20px;
+}
+
+.add-button {
+  background-color: #28a745;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.add-button img {
+  width: 24px;
+  height: 24px;
+}
+
+.add-button:hover {
+  background-color: #218838;
+}
+
+
+
+.form-adicionar {
+  margin-top: 20px;
+}
+
+.form-adicionar h3 {
+  color: #007BFF;
+  margin-bottom: 15px;
+}
+
+.form-adicionar form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-adicionar form input,
+.form-adicionar form select,
+.form-adicionar form button {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 350px; /* Limita a largura do formulário */
+}
+
+.form-adicionar form button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.form-adicionar form button:hover {
+  background-color: #218838;
+}
+
+.editar-professor {
+  margin-top: 30px;
+}
+
+.editar-professor h3 {
+  color: #007BFF;
+  margin-bottom: 15px;
+}
+
+.editar-professor form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.editar-professor form input,
+.editar-professor form select,
+.editar-professor form button {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 350px;
+}
+
+.editar-professor form button {
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.editar-professor form button:hover {
+  background-color: #0056b3;
+}
+
+.editar-professor form button[type="button"] {
+  background-color: #dc3545;
+}
+
+.editar-professor form button[type="button"]:hover {
+  background-color: #c82333;
+}
