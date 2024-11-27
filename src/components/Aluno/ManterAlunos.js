@@ -85,14 +85,14 @@ const ManterAlunos = () => {
       await updateDoc(alunoRef, {
         nome: alunoParaEditar.nome,
         email: alunoParaEditar.email,
-        turmaId: alunoParaEditar.turmaId,
+        turmaId: alunoParaEditar.turmaId, // Atualiza também o turmaId
       });
 
       alert('Aluno atualizado com sucesso!');
       setAlunoParaEditar(null);
 
       const alunosAtualizados = alunosNaTurma.map((aluno) =>
-        aluno.id === alunoParaEditar.id ? alunoParaEditar : aluno
+          aluno.id === alunoParaEditar.id ? alunoParaEditar : aluno
       );
       setAlunosNaTurma(alunosAtualizados);
     } catch (error) {
@@ -101,135 +101,135 @@ const ManterAlunos = () => {
   };
 
   return (
-    <div className="manter-alunos-container">
-      <h2>Gerenciar Alunos</h2>
+      <div className="manter-alunos-container">
+        <h2>Gerenciar Alunos</h2>
 
-      <div className="turma-selector">
-        <label>Selecione a turma:</label>
-        <select value={turmaId} onChange={(e) => setTurmaId(e.target.value)}>
-          <option value="">Escolha uma turma</option>
-          {turmas.map((turma) => (
-            <option key={turma.id} value={turma.id}>
-              {turma.nome}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="turma-selector">
+          <label>Selecione a turma:</label>
+          <select value={turmaId} onChange={(e) => setTurmaId(e.target.value)}>
+            <option value="">Escolha uma turma</option>
+            {turmas.map((turma) => (
+                <option key={turma.id} value={turma.id}>
+                  {turma.nome}
+                </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="alunos-table">
-        <h3>Alunos na Turma</h3>
-        <table>
-          <thead>
+        <div className="alunos-table">
+          <h3>Alunos na Turma</h3>
+          <table>
+            <thead>
             <tr>
               <th>Nome</th>
               <th>Email</th>
               <th>Ações</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {alunosNaTurma.map((aluno) => (
-              <tr key={aluno.id}>
-                <td>{aluno.nome}</td>
-                <td>{aluno.email}</td>
-                <td>
-                  <button onClick={() => setAlunoParaEditar(aluno)}>
-                    <img src={editIcon} alt="Editar" />
-                  </button>
-                  <button onClick={() => handleExclusao(aluno.id)}>
-                    <img src={deleteIcon} alt="Excluir" />
-                  </button>
-                </td>
-              </tr>
+                <tr key={aluno.id}>
+                  <td>{aluno.nome}</td>
+                  <td>{aluno.email}</td>
+                  <td>
+                    <button onClick={() => setAlunoParaEditar(aluno)}>
+                      <img src={editIcon} alt="Editar" />
+                    </button>
+                    <button onClick={() => handleExclusao(aluno.id)}>
+                      <img src={deleteIcon} alt="Excluir" />
+                    </button>
+                  </td>
+                </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
 
-      <div className="add-aluno-button">
-        <button onClick={() => setMostrarFormulario(!mostrarFormulario)}>
-          <img src={addIcon} alt="Adicionar Aluno" />
-        </button>
-      </div>
+        <div className="add-aluno-button">
+          <button onClick={() => setMostrarFormulario(!mostrarFormulario)}>
+            <img src={addIcon} alt="Adicionar Aluno" />
+          </button>
+        </div>
 
-      {mostrarFormulario && (
-        <form onSubmit={handleCadastro} className="manter-alunos-form">
-          <h3>Cadastrar Aluno</h3>
-          <input
-            type="text"
-            placeholder="Nome"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <select value={turmaId} onChange={(e) => setTurmaId(e.target.value)}>
-            <option value="">Selecione uma turma</option>
-            {turmas.map((turma) => (
-              <option key={turma.id} value={turma.id}>
-                {turma.nome}
-              </option>
-            ))}
-          </select>
-          <button type="submit">Cadastrar</button>
-        </form>
-      )}
-
-      {alunoParaEditar && (
-        <div className="editar-aluno-container">
-          <h3>Editar Aluno</h3>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              salvarEdicaoAluno();
-            }}
-          >
-            <label>
-              Nome:
+        {mostrarFormulario && (
+            <form onSubmit={handleCadastro} className="manter-alunos-form">
+              <h3>Cadastrar Aluno</h3>
               <input
-                type="text"
-                value={alunoParaEditar.nome}
-                onChange={(e) =>
-                  setAlunoParaEditar({ ...alunoParaEditar, nome: e.target.value })
-                }
+                  type="text"
+                  placeholder="Nome"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
               />
-            </label>
-            <label>
-              Email:
               <input
-                type="email"
-                value={alunoParaEditar.email}
-                onChange={(e) =>
-                  setAlunoParaEditar({ ...alunoParaEditar, email: e.target.value })
-                }
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
               />
-            </label>
-            <label>
-              Turma:
-              <select
-                value={alunoParaEditar.turmaId}
-                onChange={(e) =>
-                  setAlunoParaEditar({ ...alunoParaEditar, turmaId: e.target.value })
-                }
-              >
+              <select value={turmaId} onChange={(e) => setTurmaId(e.target.value)}>
+                <option value="">Selecione uma turma</option>
                 {turmas.map((turma) => (
-                  <option key={turma.id} value={turma.id}>
-                    {turma.nome}
-                  </option>
+                    <option key={turma.id} value={turma.id}>
+                      {turma.nome}
+                    </option>
                 ))}
               </select>
-            </label>
-            <button type="submit">Salvar</button>
-            <button type="button" onClick={() => setAlunoParaEditar(null)}>
-              Cancelar
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
+              <button type="submit">Cadastrar</button>
+            </form>
+        )}
+
+        {alunoParaEditar && (
+            <div className="editar-aluno-container">
+              <h3>Editar Aluno</h3>
+              <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    salvarEdicaoAluno();
+                  }}
+              >
+                <label>
+                  Nome:
+                  <input
+                      type="text"
+                      value={alunoParaEditar.nome}
+                      onChange={(e) =>
+                          setAlunoParaEditar({ ...alunoParaEditar, nome: e.target.value })
+                      }
+                  />
+                </label>
+                <label>
+                  Email:
+                  <input
+                      type="email"
+                      value={alunoParaEditar.email}
+                      onChange={(e) =>
+                          setAlunoParaEditar({ ...alunoParaEditar, email: e.target.value })
+                      }
+                  />
+                </label>
+                <label>
+                  Turma:
+                  <select
+                      value={alunoParaEditar.turmaId}
+                      onChange={(e) =>
+                          setAlunoParaEditar({ ...alunoParaEditar, turmaId: e.target.value })
+                      }
+                  >
+                    {turmas.map((turma) => (
+                        <option key={turma.id} value={turma.id}>
+                          {turma.nome}
+                        </option>
+                    ))}
+                  </select>
+                </label>
+                <button type="submit">Salvar</button>
+                <button type="button" onClick={() => setAlunoParaEditar(null)}>
+                  Cancelar
+                </button>
+              </form>
+            </div>
+        )}
+      </div>
   );
 };
 

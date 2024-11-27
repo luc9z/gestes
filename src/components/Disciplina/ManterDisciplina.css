@@ -14,115 +14,161 @@ h2 {
   margin-bottom: 20px;
 }
 
-.form-group {
-  margin-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-input,
-select {
-  font-size: 16px;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+/* Tabela de Disciplinas */
+.disciplinas-table {
   width: 100%;
-}
-
-button {
-  font-size: 16px;
-  padding: 14px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  width: 200px; /* Ajusta a largura do botão */
-}
-
-button:hover {
-  background-color: #218838;
-}
-
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: red;
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-/* Centralização do botão no layout */
-.add-disciplina-button {
-  display: flex;
-  justify-content: center; /* Alinha o botão ao centro horizontalmente */
-  width: 100%; /* Garante que o contêiner ocupe toda a largura disponível */
-}
-
-/* Formatação para os campos de input e select */
-input,
-select {
-  font-size: 16px;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  width: 100%;
-}
-
-/* Centralização do conteúdo */
-.manter-disciplina-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Centraliza os itens dentro do contêiner */
-}
-
-h2 {
+  border-collapse: collapse;
   margin-bottom: 20px;
 }
 
-/* Se necessário, para os elementos do formulário (input, select), você pode aplicar espaçamento entre eles */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  max-width: 600px; /* Limita a largura dos campos */
+.disciplinas-table th,
+.disciplinas-table td {
+  text-align: left;
+  padding: 10px;
+  border: 1px solid #ddd;
 }
 
-/* Ajustes adicionais para botões */
-button {
-  font-size: 16px;
-  padding: 14px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.disciplinas-table th {
+  background-color: #f8f9fa;
   font-weight: bold;
-  transition: background-color 0.3s ease;
-  width: 200px; /* Ajuste de largura */
 }
 
-button:hover {
+.disciplinas-table td {
+  background-color: #fff;
+  color: #555;
+}
+
+.disciplinas-table td button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.disciplinas-table td button img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Botão de Adicionar Disciplina */
+.adicionar-disciplina {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.add-button {
+  background-color: #28a745;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.add-button:hover {
   background-color: #218838;
 }
 
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+.add-button img {
+  width: 24px;
+  height: 24px;
 }
 
-/* Mensagem de erro */
-.error-message {
-  color: red;
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
   text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
+}
+
+.modal-content h3 {
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-content form input,
+.modal-content form select,
+.modal-content form button {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.modal-content form button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content form button:hover {
+  background-color: #218838;
+}
+
+.modal-content form button[type="button"] {
+  background-color: #dc3545;
+}
+
+.modal-content form button[type="button"]:hover {
+  background-color: #c82333;
+}
+
+/* Ajustes de Formulário */
+.modal-content form input,
+.modal-content form select {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 350px; /* Limita a largura do formulário */
+}
+
+.modal-content form button[type="button"] {
+  width: auto; /* Ajusta o botão cancelar para o tamanho do texto */
+  margin-top: 10px;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
 }

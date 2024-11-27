@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../../firebase';
 import { getDocs, collection, query, where, doc, getDoc, setDoc } from 'firebase/firestore';
-import './ManterNotas.css';  // Estilos podem ser aplicados aqui
+import './ManterNotas.css';
 
 const ManterNotas = () => {
   const [turmaId, setTurmaId] = useState('');
@@ -17,12 +17,14 @@ const ManterNotas = () => {
   // Carregar turmas
   useEffect(() => {
     const carregarTurmas = async () => {
+      console.log('Carregando turmas...');  // Log para depuração
       const turmaSnapshot = await getDocs(collection(firestore, 'turmas'));
       const listaDeTurmas = turmaSnapshot.docs.map(doc => ({
         id: doc.id,
         nome: doc.data().nome,
       }));
       setTurmas(listaDeTurmas);
+      console.log('Turmas carregadas:', listaDeTurmas);  // Log para depuração
     };
     carregarTurmas();
   }, []);
@@ -30,12 +32,14 @@ const ManterNotas = () => {
   // Carregar disciplinas
   useEffect(() => {
     const carregarDisciplinas = async () => {
+      console.log('Carregando disciplinas...');  // Log para depuração
       const disciplinaSnapshot = await getDocs(collection(firestore, 'disciplinas'));
       const listaDeDisciplinas = disciplinaSnapshot.docs.map(doc => ({
         id: doc.id,
         nome: doc.data().nome,
       }));
       setDisciplinas(listaDeDisciplinas);
+      console.log('Disciplinas carregadas:', listaDeDisciplinas);  // Log para depuração
     };
     carregarDisciplinas();
   }, []);
@@ -43,6 +47,8 @@ const ManterNotas = () => {
   // Carregar alunos da turma selecionada
   useEffect(() => {
     const carregarAlunos = async () => {
+      console.log('Carregando alunos para a turma ID:', turmaId);  // Log para depuração
+
       if (!turmaId) {
         setAlunos([]);
         return;
@@ -59,22 +65,17 @@ const ManterNotas = () => {
         }
 
         const turma = turmaSnapshot.data();
-        const alunoIds = turma.alunos || [];
+        const alunosData = turma.alunos || {};  // Aqui os alunos estão no formato de objeto
 
-        const alunosCarregados = await Promise.all(
-          alunoIds.map(async id => {
-            const alunoRef = doc(firestore, 'alunos', id);
-            const alunoSnapshot = await getDoc(alunoRef);
-            if (!alunoSnapshot.exists()) {
-              console.warn(`Aluno com ID ${id} não encontrado.`);
-              return null;
-            }
-            return { id, ...alunoSnapshot.data() };
-          })
-        );
+        // Converte o objeto de alunos em um array de alunos para exibição
+        const alunosList = Object.keys(alunosData).map(alunoId => ({
+          id: alunoId,
+          nome: alunosData[alunoId].nome, // Nome do aluno
+          email: alunosData[alunoId].email // Email do aluno
+        }));
 
-        const alunosValidos = alunosCarregados.filter(Boolean);
-        setAlunos(alunosValidos);
+        console.log('Alunos carregados:', alunosList);  // Log para depuração
+        setAlunos(alunosList);
       } catch (error) {
         console.error('Erro ao carregar alunos:', error);
         setAlunos([]);
@@ -87,6 +88,8 @@ const ManterNotas = () => {
   // Carregar notas da turma e disciplina selecionada
   useEffect(() => {
     const carregarNotas = async () => {
+      console.log('Carregando notas para turma:', turmaId, 'disciplina:', disciplinaId);  // Log para depuração
+
       if (!turmaId || !disciplinaId) {
         setNotas([]);
         return;
@@ -97,10 +100,15 @@ const ManterNotas = () => {
         const q = query(notasRef, where('turmaId', '==', turmaId), where('disciplinaId', '==', disciplinaId));
         const notasSnapshot = await getDocs(q);
 
-        const notasData = notasSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const notasData = await Promise.all(
+            notasSnapshot.docs.map(async doc => {
+              const notaData = doc.data();
+              const alunoRef = doc(firestore, 'alunos', notaData.alunoId);
+              const alunoSnapshot = await getDoc(alunoRef);
+              const alunoNome = alunoSnapshot.exists() ? alunoSnapshot.data().nome : 'Aluno não encontrado';
+              return { id: doc.id, alunoNome, ...notaData };
+            })
+        );
         setNotas(notasData);
       } catch (error) {
         console.error('Erro ao carregar notas:', error);
@@ -132,90 +140,89 @@ const ManterNotas = () => {
       setNota('');
     } catch (error) {
       setErro('Erro ao salvar a nota.');
-      console.error('Erro ao salvar a nota:', error);
     }
   };
 
   return (
-    <div className="manter-notas-container">
-      <h2>Gerenciar Notas</h2>
+      <div className="manter-notas-container">
+        <h2>Gerenciar Notas</h2>
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+        {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      {/* Seletor de Turma */}
-      <div className="filtro-turma">
-        <label>Turma:</label>
-        <select value={turmaId} onChange={e => setTurmaId(e.target.value)}>
-          <option value="">Selecione uma turma</option>
-          {turmas.map(turma => (
-            <option key={turma.id} value={turma.id}>
-              {turma.nome}
-            </option>
-          ))}
-        </select>
-      </div>
+        {/* Seletor de Turma */}
+        <div className="filtro-turma">
+          <label>Turma:</label>
+          <select value={turmaId} onChange={e => setTurmaId(e.target.value)}>
+            <option value="">Selecione uma turma</option>
+            {turmas.map(turma => (
+                <option key={turma.id} value={turma.id}>
+                  {turma.nome}
+                </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Seletor de Disciplina */}
-      <div className="filtro-disciplina">
-        <label>Disciplina:</label>
-        <select value={disciplinaId} onChange={e => setDisciplinaId(e.target.value)}>
-          <option value="">Selecione uma disciplina</option>
-          {disciplinas.map(disciplina => (
-            <option key={disciplina.id} value={disciplina.id}>
-              {disciplina.nome}
-            </option>
-          ))}
-        </select>
-      </div>
+        {/* Seletor de Disciplina */}
+        <div className="filtro-disciplina">
+          <label>Disciplina:</label>
+          <select value={disciplinaId} onChange={e => setDisciplinaId(e.target.value)}>
+            <option value="">Selecione uma disciplina</option>
+            {disciplinas.map(disciplina => (
+                <option key={disciplina.id} value={disciplina.id}>
+                  {disciplina.nome}
+                </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Seletor de Aluno */}
-      <div className="filtro-aluno">
-        <label>Aluno:</label>
-        <select value={alunoId} onChange={e => setAlunoId(e.target.value)}>
-          <option value="">Selecione um aluno</option>
-          {alunos.map(aluno => (
-            <option key={aluno.id} value={aluno.id}>
-              {aluno.nome}
-            </option>
-          ))}
-        </select>
-      </div>
+        {/* Seletor de Aluno */}
+        <div className="filtro-aluno">
+          <label>Aluno:</label>
+          <select value={alunoId} onChange={e => setAlunoId(e.target.value)}>
+            <option value="">Selecione um aluno</option>
+            {alunos.map(aluno => (
+                <option key={aluno.id} value={aluno.id}>
+                  {aluno.nome}
+                </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Campo de Nota */}
-      <div className="campo-nota">
-        <label>Nota:</label>
-        <input
-          type="number"
-          value={nota}
-          onChange={e => setNota(e.target.value)}
-          placeholder="Digite a nota"
-        />
-      </div>
+        {/* Campo de Nota */}
+        <div className="campo-nota">
+          <label>Nota:</label>
+          <input
+              type="number"
+              value={nota}
+              onChange={e => setNota(e.target.value)}
+              placeholder="Digite a nota"
+          />
+        </div>
 
-      {/* Botão para Salvar Nota */}
-      <button onClick={handleSalvarNota}>Salvar Nota</button>
+        {/* Botão para Salvar Nota */}
+        <button onClick={handleSalvarNota}>Salvar Nota</button>
 
-      {/* Exibir Notas Existentes */}
-      <div className="notas-existentes">
-        <h3>Notas Existentes</h3>
-        <table>
-          <thead>
+        {/* Exibir Notas Existentes */}
+        <div className="notas-existentes">
+          <h3>Notas Existentes</h3>
+          <table>
+            <thead>
             <tr>
               <th>Aluno</th>
               <th>Nota</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {notas.map(nota => (
-              <tr key={nota.id}>
-                <td>{nota.alunoId}</td>
-                <td>{nota.nota}</td>
-              </tr>
+                <tr key={nota.id}>
+                  <td>{nota.alunoNome}</td>
+                  <td>{nota.nota}</td>
+                </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../../firebase';
-import { collection, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 import './ManterTurma.css';
 
 const ManterTurma = () => {
@@ -48,7 +48,7 @@ const ManterTurma = () => {
   const handleExcluirTurma = async (id) => {
     try {
       await deleteDoc(doc(firestore, 'turmas', id));
-      setTurmas(prev => prev.filter(turma => turma.id !== id));
+      setTurmas(turmas.filter(turma => turma.id !== id));
       alert('Turma excluída com sucesso!');
     } catch (e) {
       console.error('Erro ao excluir turma:', e);
@@ -57,33 +57,25 @@ const ManterTurma = () => {
   };
 
   return (
-    <div className="manter-turma-container">
-      <h2>Cadastro de Turma</h2>
-      <div className="form-cadastro">
-        <label>Nome da Turma</label>
+      <div>
+        <h2>Gerenciar Turmas</h2>
         <input
-          type="text"
-          value={nomeTurma}
-          onChange={(e) => setNomeTurma(e.target.value)}
-          placeholder="Digite o nome da turma"
+            type="text"
+            value={nomeTurma}
+            onChange={(e) => setNomeTurma(e.target.value)}
+            placeholder="Nome da turma"
         />
         <button onClick={handleCadastrarTurma}>Cadastrar Turma</button>
-      </div>
 
-      <h2>Turmas Cadastradas</h2>
-      <div className="lista-turmas">
-        {turmas.length > 0 ? (
-          turmas.map((turma) => (
-            <div key={turma.id} className="turma-item">
-              <span>{turma.nome}</span>
-              <button onClick={() => handleExcluirTurma(turma.id)}>Excluir</button>
-            </div>
-          ))
-        ) : (
-          <p>Nenhuma turma cadastrada.</p>
-        )}
+        <ul>
+          {turmas.map(turma => (
+              <li key={turma.id}>
+                {turma.nome}
+                <button onClick={() => handleExcluirTurma(turma.id)}>Excluir</button>
+              </li>
+          ))}
+        </ul>
       </div>
-    </div>
   );
 };
 

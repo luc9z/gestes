@@ -1,7 +1,7 @@
 // Importando as funções necessárias do Firebase
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';  
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';  
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
 
 // Sua configuração do Firebase
 const firebaseConfig = {
@@ -24,8 +24,30 @@ export const firestore = getFirestore(app);
 // Função para adicionar nota ao aluno
 export const adicionarNota = async (alunoId, disciplinaId, nota) => {
   try {
+    // Validação da nota para garantir que seja um número
+    if (isNaN(nota)) {
+      throw new Error('A nota deve ser um número.');
+    }
+
+    // Referência ao documento do aluno
     const alunoRef = doc(firestore, 'alunos', alunoId);
-    await updateDoc(alunoRef, { [`notas.${disciplinaId}`]: nota });  // Adiciona a nota para a disciplina
+    const alunoSnapshot = await getDoc(alunoRef);
+
+    // Verificar se o aluno existe
+    if (!alunoSnapshot.exists()) {
+      throw new Error('Aluno não encontrado.');
+    }
+
+    // Verificar se o campo 'notas' existe, se não, inicializar como objeto vazio
+    const alunoData = alunoSnapshot.data();
+    const notas = alunoData.notas || {};
+
+    // Atualiza a nota da disciplina
+    notas[disciplinaId] = nota;
+
+    // Atualiza o documento do aluno no Firestore
+    await updateDoc(alunoRef, { notas });
+
     console.log("Nota adicionada com sucesso.");
   } catch (e) {
     console.error("Erro ao adicionar nota:", e);
@@ -35,7 +57,7 @@ export const adicionarNota = async (alunoId, disciplinaId, nota) => {
 
 // Função para login com email e senha
 export const loginWithEmailAndPassword = (email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);  
+  return signInWithEmailAndPassword(auth, email, password);
 };
 // Função para adicionar aluno
 export const adicionarAluno = async (nome, email, turmaId) => {
@@ -47,6 +69,10 @@ export const adicionarAluno = async (nome, email, turmaId) => {
       turmaId: turmaId,  // Associando o aluno à turma
     });
     console.log("Aluno adicionado com ID:", alunoRef.id);
+
+    // Após adicionar o aluno, associamos ele à turma com o nome e email
+    await adicionarAlunoNaTurma(alunoRef.id, turmaId, nome, email); // Passa o nome e email do aluno para a turma
+
     return alunoRef.id;
   } catch (e) {
     console.error("Erro ao adicionar aluno:", e);
@@ -54,23 +80,35 @@ export const adicionarAluno = async (nome, email, turmaId) => {
   }
 };
 
-// Função para adicionar o aluno à turma
-export const adicionarAlunoNaTurma = async (alunoId, turmaId) => {
+export const adicionarAlunoNaTurma = async (alunoId, turmaId, nomeAluno, emailAluno) => {
   try {
     const turmaRef = doc(firestore, 'turmas', turmaId);
     const turmaSnapshot = await getDoc(turmaRef);
+
     if (turmaSnapshot.exists()) {
       const turmaData = turmaSnapshot.data();
-      const alunosAtualizados = [...turmaData.alunos, alunoId];
+
+      // Se o campo 'alunos' não existir, inicializa como um objeto vazio
+      const alunosAtualizados = turmaData.alunos || {};
+
+      // Adiciona o aluno ao objeto de alunos, usando o alunoId como chave
+      alunosAtualizados[alunoId] = {
+        nome: nomeAluno,
+        email: emailAluno
+      };
+
+      // Atualiza a turma com o novo aluno
       await updateDoc(turmaRef, { alunos: alunosAtualizados });
+
       console.log("Aluno inserido na turma com sucesso.");
+    } else {
+      console.log("Turma não encontrada.");
     }
   } catch (e) {
     console.error("Erro ao inserir aluno na turma:", e);
     throw e;
   }
 };
-
 
 export const excluirAluno = async (alunoId, turmaId) => {
   try {
@@ -167,11 +205,11 @@ export const gerarRelatorioPresenca = async (turmaId) => {
   const alunos = turmaData.alunos;  // Lista de alunos
 
   const presencas = await Promise.all(
-    alunos.map(async (alunoId) => {
-      const alunoRef = collection(firestore, 'alunos');
-      const alunoSnapshot = await getDocs(query(alunoRef, where("id", "==", alunoId)));
-      return alunoSnapshot.empty ? null : alunoSnapshot.docs[0].data().presenca;
-    })
+      alunos.map(async (alunoId) => {
+        const alunoRef = collection(firestore, 'alunos');
+        const alunoSnapshot = await getDocs(query(alunoRef, where("id", "==", alunoId)));
+        return alunoSnapshot.empty ? null : alunoSnapshot.docs[0].data().presenca;
+      })
   );
 
   return presencas;  // Retorna o relatório de presença
@@ -238,8 +276,8 @@ export const excluirProfessor = async (professorId, turmaId) => {
 
       // Verifica se o campo 'professores' existe e é um array
       const professoresAtualizados = Array.isArray(turmaData.professores)
-        ? turmaData.professores.filter(id => id !== professorId)
-        : [];
+          ? turmaData.professores.filter(id => id !== professorId)
+          : [];
 
       await updateDoc(turmaRef, { professores: professoresAtualizados });
       console.log("Professor removido da turma com sucesso.");
@@ -363,11 +401,11 @@ export const gerarRelatorioProfessor = async (turmaId) => {
   const professores = turmaData.professores;  // Lista de professores
 
   const relatorioProfessores = await Promise.all(
-    professores.map(async (professorId) => {
-      const professorRef = collection(firestore, 'professores');
-      const professorSnapshot = await getDocs(query(professorRef, where("id", "==", professorId)));
-      return professorSnapshot.empty ? null : professorSnapshot.docs[0].data();
-    })
+      professores.map(async (professorId) => {
+        const professorRef = collection(firestore, 'professores');
+        const professorSnapshot = await getDocs(query(professorRef, where("id", "==", professorId)));
+        return professorSnapshot.empty ? null : professorSnapshot.docs[0].data();
+      })
   );
 
   return relatorioProfessores;  // Retorna o relatório de professores
@@ -400,4 +438,3 @@ export const adicionarTurma = async (nome) => {
     console.error("Erro ao adicionar turma:", e);
   }
 };
-
