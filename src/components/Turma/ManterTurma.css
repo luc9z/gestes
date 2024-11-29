@@ -1,66 +1,83 @@
-.manter-turma-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  h2 {
-    text-align: center;
-    color: #333;
-  }
-  
-  .form-cadastro {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 30px;
-  }
-  
-  input {
-    font-size: 16px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  button {
-    font-size: 16px;
-    padding: 10px 15px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
-    background-color: #218838;
-  }
-  
-  .lista-turmas {
-    margin-top: 20px;
-  }
-  
-  .turma-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
-  
-  .turma-item button {
-    background-color: #dc3545;
-  }
-  
-  .turma-item button:hover {
-    background-color: #c82333;
-  }
-  
+/* Estilo base para a tabela (igual as outras páginas) */
+.turma-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.turma-table th, .turma-table td {
+  padding: 12px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.turma-table th {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Estilos de ações (botões de editar e excluir) */
+.turma-table td.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.turma-table td.actions button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.turma-table td.actions img {
+  width: 24px;  /* Ajuste para o tamanho do ícone */
+  height: 24px;
+  transition: transform 0.2s ease;
+}
+
+.turma-table td.actions button:hover img {
+  transform: scale(1.2);  /* Ampliação do ícone no hover */
+}
+
+/* Botões principais */
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Estilo do formulário */
+.form-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Alinha horizontalmente ao centro */
+}
+
+
+.form-container input, .form-container select {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.form-container button {
+  width: 100%;
+  max-width: 400px;
+}

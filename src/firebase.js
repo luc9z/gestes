@@ -190,31 +190,6 @@ export const atualizarAlunoNaTurma = async (alunoId, novaTurmaId) => {
   }
 };
 
-// Função para gerar relatório de presença
-export const gerarRelatorioPresenca = async (turmaId) => {
-  const turmaRef = collection(firestore, 'turmas');
-  const q = query(turmaRef, where("id", "==", turmaId));
-  const turmaSnapshot = await getDocs(q);
-
-  if (turmaSnapshot.empty) {
-    console.log("Turma não encontrada.");
-    return;
-  }
-
-  const turmaData = turmaSnapshot.docs[0].data();
-  const alunos = turmaData.alunos;  // Lista de alunos
-
-  const presencas = await Promise.all(
-      alunos.map(async (alunoId) => {
-        const alunoRef = collection(firestore, 'alunos');
-        const alunoSnapshot = await getDocs(query(alunoRef, where("id", "==", alunoId)));
-        return alunoSnapshot.empty ? null : alunoSnapshot.docs[0].data().presenca;
-      })
-  );
-
-  return presencas;  // Retorna o relatório de presença
-};
-
 export const adicionarProfessor = async (nome, email, turmaId) => {
   try {
     // Cria o professor com a turmaId diretamente
@@ -286,6 +261,83 @@ export const excluirProfessor = async (professorId, turmaId) => {
     }
   } catch (e) {
     console.error("Erro ao excluir professor:", e);
+  }
+};
+
+export const gerarRelatorioPresenca = async (turmaId) => {
+  try {
+    const turmaRef = doc(firestore, 'turmas', turmaId);
+    const turmaSnapshot = await getDoc(turmaRef);
+
+    if (!turmaSnapshot.exists()) {
+      throw new Error('Turma não encontrada');
+    }
+
+    const turma = turmaSnapshot.data();
+    const alunosData = turma.alunos || {};  // Aqui os alunos estão no formato de objeto
+
+    const alunosList = await Promise.all(
+      Object.keys(alunosData).map(async (alunoId) => {
+        const alunoRef = doc(firestore, 'alunos', alunoId);
+        const alunoSnapshot = await getDoc(alunoRef);
+
+        if (!alunoSnapshot.exists()) {
+          return null;  // Caso o aluno não seja encontrado
+        }
+
+        const alunoData = alunoSnapshot.data();
+
+        // Buscar notas do aluno
+        const notasRef = collection(firestore, 'notas');
+        const q = query(notasRef, where('alunoId', '==', alunoId), where('turmaId', '==', turmaId));
+        const notasSnapshot = await getDocs(q);
+        const notas = notasSnapshot.docs.map(doc => doc.data().nota || '[NÃO INFORMADO]');
+
+        return {
+          id: alunoId,
+          nome: alunoData.nome,
+          notas: notas
+        };
+      })
+    );
+
+    return alunosList.filter(aluno => aluno !== null);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const gerarRelatorioAluno = async (turmaId, alunoId, disciplinaId = '') => {
+  try {
+    const notasRef = collection(firestore, 'notas');
+    
+    let q;
+    
+    // Se houver uma disciplina selecionada, filtra por disciplina
+    if (disciplinaId) {
+      q = query(notasRef, where('alunoId', '==', alunoId), where('turmaId', '==', turmaId), where('disciplinaId', '==', disciplinaId));
+    } else {
+      // Caso contrário, retorna todas as notas do aluno na turma
+      q = query(notasRef, where('alunoId', '==', alunoId), where('turmaId', '==', turmaId));
+    }
+    
+    const notasSnapshot = await getDocs(q);
+    
+    // Organiza as notas do aluno
+    const notas = notasSnapshot.docs.map(doc => doc.data().nota || '[NÃO INFORMADO]');
+
+    // Busca os dados do aluno
+    const alunoRef = doc(firestore, 'alunos', alunoId);
+    const alunoSnapshot = await getDoc(alunoRef);
+    const alunoData = alunoSnapshot.data();
+    
+    return {
+      alunoNome: alunoData.nome,
+      alunoEmail: alunoData.email,
+      notas: notas
+    };
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 

@@ -1,7 +1,12 @@
-body {
-  font-family: 'Roboto', sans-serif;
+/* Reset e Fontes */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
   background-color: #f4f4f9;
   color: #333;
 }
@@ -10,6 +15,7 @@ body {
 .dashboard-container {
   display: flex;
   min-height: 100vh;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Barra lateral */
@@ -24,27 +30,33 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 10px;
+  padding-top: 20px;
   transition: width 0.3s ease-in-out;
   overflow: hidden;
 }
 
 .sidebar-menu.open {
-  width: 300px;
+  width: 250px;
 }
 
+/* Menu Button (Ícone de menu) */
 .menu-btn {
   font-size: 1.5rem;
   background: none;
   border: none;
   color: white;
   cursor: pointer;
+  margin-bottom: 20px;
+  padding: 10px;
+  transition: transform 0.3s ease;
 }
 
+/* Quando o menu estiver aberto, gira o ícone */
+.sidebar-menu.open .menu-btn {
+  transform: rotate(90deg); /* Rota o ícone 90 graus */
+}
 .menu-content {
-  margin-top: 20px;
   width: 100%;
-  text-align: center;
 }
 
 .menu-content ul {
@@ -54,15 +66,23 @@ body {
 }
 
 .menu-content ul li {
-  margin: 10px 0;
+  margin: 12px 0;
+  padding: 12px 20px;
+  font-size: 1.1rem;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, padding-left 0.3s ease;
 }
 
 .menu-content ul li:hover {
   background-color: #0056b3;
-  padding-left: 10px;
+  padding-left: 30px;
+}
+
+.menu-content ul li a {
+  color: white;
+  text-decoration: none;
 }
 
 /* Dropdown da turma */
@@ -77,26 +97,33 @@ body {
 }
 
 .turma-dropdown {
-  width: 300px;
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
+  width: 100%;
+  max-width: 350px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   font-size: 1rem;
   background-color: white;
   color: #333;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+.turma-dropdown:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 /* Ajuste para conteúdo principal */
 main {
   flex: 1;
   margin-left: 80px;
-  transition: margin-left 0.3s ease-in-out;
   padding: 20px;
+  transition: margin-left 0.3s ease-in-out;
 }
 
 main.shrink {
-  margin-left: 300px;
+  margin-left: 250px;
 }
 
 .turma-selector {
@@ -104,6 +131,7 @@ main.shrink {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .turma-selector h2 {
@@ -126,15 +154,18 @@ main.shrink {
 .options-container button {
   background-color: #007bff;
   color: white;
-  padding: 15px 30px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 1rem;
   transition: background-color 0.3s ease;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .options-container button:hover {
   background-color: #0056b3;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .back-btn {
@@ -143,36 +174,41 @@ main.shrink {
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .back-btn:hover {
   background-color: #c82333;
 }
 
+/* Responsividade */
+@media (max-width: 768px) {
+  .sidebar-menu {
+    width: 0;
+    position: absolute;
+  }
 
-/* Lista de links na barra lateral */
-.menu-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+  .sidebar-menu.open {
+    width: 250px;
+  }
 
-.menu-content ul li {
-  padding: 15px;
-  margin: 5px 0;
-  font-size: 1.2rem;
-  text-align: left;
-  background-color: #0056b3;
-  cursor: pointer;
-  transition: background-color 0.3s ease, padding-left 0.3s ease;
-  border-radius: 5px;
-  width: 90%;
-  margin-left: 5%;
-}
+  main {
+    margin-left: 0;
+  }
 
-.menu-content ul li:hover {
-  background-color: #003f8a;
-  padding-left: 20px;
+  .menu-btn {
+    font-size: 2rem;
+    margin-left: 20px;
+  }
+
+  .menu-content ul li {
+    padding: 15px;
+    font-size: 1rem;
+  }
+
+  .options-container button {
+    padding: 10px 20px;
+  }
 }

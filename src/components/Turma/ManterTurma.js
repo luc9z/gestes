@@ -1,81 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../../firebase';
-import { collection, addDoc, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { getDocs, collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import './ManterTurma.css';
+import deleteIcon from '../../assets/delete-icon.png';
+
 
 const ManterTurma = () => {
-  const [nomeTurma, setNomeTurma] = useState('');
+  const [nome, setNome] = useState('');
   const [turmas, setTurmas] = useState([]);
 
-  // Carregar lista de turmas ao iniciar
+  // Carregar turmas
   useEffect(() => {
     const carregarTurmas = async () => {
       const turmaSnapshot = await getDocs(collection(firestore, 'turmas'));
-      const listaDeTurmas = turmaSnapshot.docs.map(doc => ({
+      const listaDeTurmas = turmaSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        nome: doc.data().nome,
       }));
       setTurmas(listaDeTurmas);
     };
-
     carregarTurmas();
-  }, []);
+  }, []);  // Carregar turmas apenas uma vez ao montar o componente
 
-  // Cadastrar uma nova turma
-  const handleCadastrarTurma = async () => {
-    if (!nomeTurma) {
-      alert('Por favor, insira o nome da turma.');
-      return;
-    }
+  // Função para adicionar turma
+  const adicionarTurma = async (e) => {
+    e.preventDefault();
+    if (nome.trim()) {
+      // Adicionando nova turma no Firestore
+      await addDoc(collection(firestore, 'turmas'), { nome });
+      setNome('');  // Limpa o campo de nome após adicionar
 
-    try {
-      const docRef = await addDoc(collection(firestore, 'turmas'), {
-        nome: nomeTurma,
-        disciplinas: [], // Inicializa sem disciplinas
-        alunos: [],      // Inicializa sem alunos
-        professores: []  // Inicializa sem professores
-      });
-      setTurmas(prev => [...prev, { id: docRef.id, nome: nomeTurma }]);
-      setNomeTurma('');
-      alert('Turma cadastrada com sucesso!');
-    } catch (e) {
-      console.error('Erro ao cadastrar turma:', e);
-      alert('Erro ao cadastrar turma.');
+      // Atualizar a lista de turmas sem precisar dar F5
+      const turmaSnapshot = await getDocs(collection(firestore, 'turmas'));
+      const listaDeTurmas = turmaSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        nome: doc.data().nome,
+      }));
+      setTurmas(listaDeTurmas);  // Atualiza o estado
     }
   };
 
-  // Excluir turma
-  const handleExcluirTurma = async (id) => {
-    try {
-      await deleteDoc(doc(firestore, 'turmas', id));
-      setTurmas(turmas.filter(turma => turma.id !== id));
-      alert('Turma excluída com sucesso!');
-    } catch (e) {
-      console.error('Erro ao excluir turma:', e);
-      alert('Erro ao excluir turma.');
-    }
+  // Função para excluir turma
+  const excluirTurma = async (id) => {
+    // Excluir a turma do Firestore
+    await deleteDoc(doc(firestore, 'turmas', id));
+
+    // Atualizar a lista de turmas removendo a excluída
+    setTurmas(turmas.filter((turma) => turma.id !== id));  // Remove a turma excluída
   };
 
   return (
-      <div>
-        <h2>Gerenciar Turmas</h2>
+    <div className="container">
+      <h2>Gerenciar Turmas</h2>
+      
+      {/* Formulário para adicionar nova turma */}
+      <form className="form-container" onSubmit={adicionarTurma}>
         <input
-            type="text"
-            value={nomeTurma}
-            onChange={(e) => setNomeTurma(e.target.value)}
-            placeholder="Nome da turma"
+          type="text"
+          placeholder="Nome da Turma"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
         />
-        <button onClick={handleCadastrarTurma}>Cadastrar Turma</button>
+        <button type="submit">Adicionar Turma</button>
+      </form>
 
-        <ul>
-          {turmas.map(turma => (
-              <li key={turma.id}>
-                {turma.nome}
-                <button onClick={() => handleExcluirTurma(turma.id)}>Excluir</button>
-              </li>
+      {/* Tabela de turmas */}
+      <table className="turma-table">
+        <thead>
+          <tr>
+            <th>Nome da Turma</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {turmas.map((turma) => (
+            <tr key={turma.id}>
+              <td>{turma.nome}</td>
+              <td className="actions">
+                {/* Apenas botão de deletar */}
+                <button onClick={() => excluirTurma(turma.id)}>
+                  <img src={deleteIcon} alt="Excluir" />
+                </button>
+              </td>
+            </tr>
           ))}
-        </ul>
-      </div>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

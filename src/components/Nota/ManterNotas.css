@@ -1,63 +1,95 @@
 .manter-notas-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  h2 {
-    text-align: center;
-    color: #007bff;
-  }
-  
-  .filtro-turma, .filtro-disciplina, .filtro-aluno, .campo-nota {
-    margin-bottom: 20px;
-  }
-  
-  .filtro-turma select,
-  .filtro-disciplina select,
-  .filtro-aluno select,
-  .campo-nota input {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  button {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #218838;
-  }
-  
-  .notas-existentes {
-    margin-top: 30px;
-  }
-  
-  .notas-existentes table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .notas-existentes th, .notas-existentes td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-  
-  .notas-existentes th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-  }
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-  
+h2 {
+  text-align: center;
+  color: #007bff;
+}
+
+.filtro-turma, .filtro-disciplina, .filtro-aluno, .campo-nota {
+  margin-bottom: 20px;
+}
+
+.filtro-turma select,
+.filtro-disciplina select,
+.filtro-aluno select,
+.campo-nota input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+.notas-existentes {
+  margin-top: 30px;
+}
+
+.notas-existentes table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.notas-existentes th, .notas-existentes td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.notas-existentes th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+/* Estilização dos ícones de editar e deletar */
+.notas-existentes td button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.notas-existentes td button img {
+  width: 20px;  /* Tamanho do ícone */
+  height: 20px; /* Tamanho do ícone */
+}
+
+.notas-existentes td button:hover {
+  transform: scale(1.2); /* Efeito de zoom no ícone ao passar o mouse */
+}
+
+.notas-existentes td button.edit-btn {
+  color: #007bff; /* Cor do botão de editar */
+}
+
+.notas-existentes td button.delete-btn {
+  color: #dc3545; /* Cor do botão de deletar */
+}
+
+.notas-existentes td button.edit-btn:hover {
+  color: #0056b3; /* Cor do ícone de editar quando o mouse estiver sobre */
+}
+
+.notas-existentes td button.delete-btn:hover {
+  color: #c82333; /* Cor do ícone de deletar quando o mouse estiver sobre */
+}

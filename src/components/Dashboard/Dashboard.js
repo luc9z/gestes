@@ -39,6 +39,7 @@ const Dashboard = () => {
         {menuOpen && (
           <div className="menu-content">
             <ul>
+              {/* Links simples, sem o turmaId na URL */}
               <li>
                 <Link to="/manter-professores">Manter Professores</Link>
               </li>
@@ -72,6 +73,7 @@ const Dashboard = () => {
               setSelectedTurma(turmas.find((turma) => turma.id === e.target.value))
             }
             className="turma-dropdown"
+            value={selectedTurma ? selectedTurma.id : ""}
           >
             <option value="">Escolha uma turma</option>
             {turmas.map((turma) => (
@@ -91,10 +93,11 @@ const Dashboard = () => {
           <div className="turma-dashboard">
             <h2>{selectedTurma.nome}</h2>
             <div className="options-container">
-              <button>Alunos</button>
-              <button>Professores</button>
-              <button>Disciplinas</button>
-              <button>Notas</button>
+              {/* Links para as páginas de alunos, professores, etc. */}
+              <Link to="/manter-alunos"><button>Alunos</button></Link>
+              <Link to="/manter-professores"><button>Professores</button></Link>
+              <Link to="/manter-disciplinas"><button>Disciplinas</button></Link>
+              <Link to="/manter-notas"><button>Notas</button></Link>
             </div>
             <button className="back-btn" onClick={voltarParaSelecao}>
               Voltar
