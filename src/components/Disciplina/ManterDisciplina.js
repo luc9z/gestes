@@ -9,29 +9,19 @@ import deleteIcon from '../../assets/delete-icon.png';
 const ManterDisciplinas = () => {
   const [disciplinas, setDisciplinas] = useState([]);
   const [turmas, setTurmas] = useState([]);
-  const [professores, setProfessores] = useState([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [nome, setNome] = useState('');
   const [turmaId, setTurmaId] = useState('');
-  const [professorId, setProfessorId] = useState('');
   const [disciplinaParaEditar, setDisciplinaParaEditar] = useState(null);
 
   // Carregar dados do banco
   useEffect(() => {
     const fetchData = async () => {
       const turmaSnapshot = await getDocs(collection(firestore, 'turmas'));
-      const professorSnapshot = await getDocs(collection(firestore, 'professores'));
       const disciplinaSnapshot = await getDocs(collection(firestore, 'disciplinas'));
 
-      setTurmas(
-          turmaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
-      setProfessores(
-          professorSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
-      setDisciplinas(
-          disciplinaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      setTurmas(turmaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      setDisciplinas(disciplinaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     };
     fetchData();
   }, []);
@@ -39,19 +29,19 @@ const ManterDisciplinas = () => {
   // Adicionar disciplina
   const handleAdicionar = async (e) => {
     e.preventDefault();
-    if (!nome || !turmaId || !professorId) {
+    if (!nome || !turmaId) {
       alert('Preencha todos os campos!');
       return;
     }
     try {
       const newDisciplina = {
         nome,
-        turmaId,
-        professorId,
+        turmaId, // Agora apenas turmaId é necessário
       };
 
       // Adicionar ao Firestore
       const docRef = await addDoc(collection(firestore, 'disciplinas'), newDisciplina);
+
       // Atualizar a tabela localmente
       setDisciplinas((prevDisciplinas) => [
         ...prevDisciplinas,
@@ -61,7 +51,6 @@ const ManterDisciplinas = () => {
       // Resetando os campos
       setNome('');
       setTurmaId('');
-      setProfessorId('');
       setMostrarFormulario(false); // Fechar o formulário
       alert('Disciplina adicionada com sucesso!');
     } catch (error) {
@@ -85,14 +74,13 @@ const ManterDisciplinas = () => {
     setDisciplinaParaEditar(disciplina);
     setNome(disciplina.nome);
     setTurmaId(disciplina.turmaId);
-    setProfessorId(disciplina.professorId);
     setMostrarFormulario(true);
   };
 
   // Salvar alterações na disciplina
   const handleSalvarEdicao = async (e) => {
     e.preventDefault();
-    if (!nome || !turmaId || !professorId) {
+    if (!nome || !turmaId) {
       alert('Preencha todos os campos!');
       return;
     }
@@ -100,15 +88,14 @@ const ManterDisciplinas = () => {
       const disciplinaRef = doc(firestore, 'disciplinas', disciplinaParaEditar.id);
       await updateDoc(disciplinaRef, {
         nome,
-        turmaId,
-        professorId,
+        turmaId, // Atualiza apenas o nome e turmaId
       });
 
       // Atualizar tabela local
       setDisciplinas((prevDisciplinas) =>
           prevDisciplinas.map((disciplina) =>
               disciplina.id === disciplinaParaEditar.id
-                  ? { ...disciplina, nome, turmaId, professorId }
+                  ? { ...disciplina, nome, turmaId }
                   : disciplina
           )
       );
@@ -116,7 +103,6 @@ const ManterDisciplinas = () => {
       // Resetando os campos
       setNome('');
       setTurmaId('');
-      setProfessorId('');
       setDisciplinaParaEditar(null);
       setMostrarFormulario(false); // Fechar o formulário
       alert('Disciplina atualizada com sucesso!');
@@ -134,7 +120,6 @@ const ManterDisciplinas = () => {
           <tr>
             <th>Nome</th>
             <th>Turma</th>
-            <th>Professor</th>
             <th>Ações</th>
           </tr>
           </thead>
@@ -143,9 +128,6 @@ const ManterDisciplinas = () => {
               <tr key={disciplina.id}>
                 <td>{disciplina.nome}</td>
                 <td>{turmas.find((t) => t.id === disciplina.turmaId)?.nome || 'N/A'}</td>
-                <td>
-                  {professores.find((p) => p.id === disciplina.professorId)?.nome || 'N/A'}
-                </td>
                 <td>
                   <button onClick={() => handleEditar(disciplina)}>
                     <img src={editIcon} alt="Editar" />
@@ -181,14 +163,6 @@ const ManterDisciplinas = () => {
                     {turmas.map((turma) => (
                         <option key={turma.id} value={turma.id}>
                           {turma.nome}
-                        </option>
-                    ))}
-                  </select>
-                  <select value={professorId} onChange={(e) => setProfessorId(e.target.value)}>
-                    <option value="">Selecione um professor</option>
-                    {professores.map((professor) => (
-                        <option key={professor.id} value={professor.id}>
-                          {professor.nome}
                         </option>
                     ))}
                   </select>

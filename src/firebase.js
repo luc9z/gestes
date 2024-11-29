@@ -190,13 +190,13 @@ export const atualizarAlunoNaTurma = async (alunoId, novaTurmaId) => {
   }
 };
 
-export const adicionarProfessor = async (nome, email, turmaId) => {
+export const adicionarProfessor = async (nome, email, turmaId, disciplinaId) => {
   try {
-    // Cria o professor com a turmaId diretamente
     const docRef = await addDoc(collection(firestore, "professores"), {
       nome: nome,
       email: email,
       turmaId: turmaId, // Associando a turma diretamente ao professor
+      disciplinaId: disciplinaId, // Incluindo a disciplina do professor
     });
     console.log("Professor adicionado com ID:", docRef.id);
     return docRef.id;
@@ -204,6 +204,7 @@ export const adicionarProfessor = async (nome, email, turmaId) => {
     console.error("Erro ao adicionar professor:", e);
   }
 };
+
 
 // Função para inserir professor na turma
 export const inserirProfessorNaTurma = async (professorId, turmaId) => {
@@ -350,18 +351,15 @@ export const atualizarProfessor = async (professorId, dadosAtualizados) => {
     console.error("Erro ao atualizar professor:", e);
   }
 };
-// Função para adicionar disciplina
 export const adicionarDisciplina = async (nome, turmaId) => {
   try {
-    // Criando um novo documento para a disciplina
     const docRef = await addDoc(collection(firestore, "disciplinas"), {
       nome: nome,
-      turmaId: turmaId, // Associa a disciplina à turma
+      turmaId: turmaId,
     });
-    console.log("Disciplina adicionada com ID:", docRef.id);
 
-    // Após adicionar, também associa a disciplina à turma
-    await inserirDisciplinaNaTurma(docRef.id, turmaId);
+    console.log("Disciplina adicionada com ID:", docRef.id);
+    await inserirDisciplinaNaTurma(docRef.id, turmaId);  // Associa a disciplina à turma
   } catch (e) {
     console.error("Erro ao adicionar disciplina:", e);
   }
