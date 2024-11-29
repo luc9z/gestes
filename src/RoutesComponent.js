@@ -8,6 +8,9 @@ import ManterNotas from './components/Nota/ManterNotas';  // Componente Manter N
 import ManterTurmas from './components/Turma/ManterTurma';  // Componente Manter Turmas
 import ManterDisciplinas from './components/Disciplina/ManterDisciplina.js';  // Componente Manter Disciplinas
 import GerarRelatorio from './components/Relatorio/GerarRelatorio';  // Componente Gerar Relatório
+import AlunosNotaIndividual from './components/Relatorio/alunosnotaindividual.js';
+import Professores from './components/Relatorio/professores.js';
+import Turmas from './components/Relatorio/turmas.js';
 
 const RoutesComponent = ({ user, setUser }) => {
   return (
@@ -16,23 +19,23 @@ const RoutesComponent = ({ user, setUser }) => {
         <Route path="/" element={<Login setUser={setUser} />} />
       ) : (
         <>
-=          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/manter-professores" element={<ManterProfessores />} />
+          <Route path="/manter-alunos" element={<ManterAlunos />} />
+          <Route path="/manter-notas" element={<ManterNotas />} />
+          <Route path="/manter-turmas" element={<ManterTurmas />} />
+          <Route path="/manter-disciplinas" element={<ManterDisciplinas />} />
 
-=          <Route path="/manter-professores" element={<ManterProfessores />} />
-          
-=          <Route path="/manter-alunos" element={<ManterAlunos />} />
-          
-=          <Route path="/manter-notas" element={<ManterNotas />} />
-          
-=          <Route path="/manter-turmas" element={<ManterTurmas />} />
-          
-=          <Route path="/manter-disciplinas" element={<ManterDisciplinas />} />
-          
-=          <Route path="/gerar-relatorio" element={<GerarRelatorio />} />
+          {/* Rotas para relatórios */}
+          <Route path="/relatorios" element={<GerarRelatorio />} />
+          <Route path="/relatorios/aluno" element={<AlunosNotaIndividual />} />
+          <Route path="/relatorios/professor" element={<Professores />} />
+          <Route path="/relatorios/turma" element={<Turmas />} />
         </>
       )}
 
-=      <Route path="*" element={<Navigate to="/" />} />
+      {/* Redireciona qualquer rota desconhecida para o login */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 };

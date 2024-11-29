@@ -39,7 +39,7 @@ const Dashboard = () => {
         {menuOpen && (
           <div className="menu-content">
             <ul>
-              {/* Links simples, sem o turmaId na URL */}
+              {/* Links para as páginas principais */}
               <li>
                 <Link to="/manter-professores">Manter Professores</Link>
               </li>
@@ -55,8 +55,9 @@ const Dashboard = () => {
               <li>
                 <Link to="/manter-disciplinas">Manter Disciplinas</Link>
               </li>
+              {/* Links para os relatórios */}
               <li>
-                <Link to="/gerar-relatorio">Gerar Relatório</Link>
+                <Link to="/relatorios">Relatórios</Link>
               </li>
             </ul>
           </div>
@@ -73,7 +74,7 @@ const Dashboard = () => {
               setSelectedTurma(turmas.find((turma) => turma.id === e.target.value))
             }
             className="turma-dropdown"
-            value={selectedTurma ? selectedTurma.id : ""}
+            value={selectedTurma ? selectedTurma.id : ''}
           >
             <option value="">Escolha uma turma</option>
             {turmas.map((turma) => (
@@ -94,11 +95,34 @@ const Dashboard = () => {
             <h2>{selectedTurma.nome}</h2>
             <div className="options-container">
               {/* Links para as páginas de alunos, professores, etc. */}
-              <Link to="/manter-alunos"><button>Alunos</button></Link>
-              <Link to="/manter-professores"><button>Professores</button></Link>
-              <Link to="/manter-disciplinas"><button>Disciplinas</button></Link>
-              <Link to="/manter-notas"><button>Notas</button></Link>
+              <Link to="/manter-alunos">
+                <button>Alunos</button>
+              </Link>
+              <Link to="/manter-professores">
+                <button>Professores</button>
+              </Link>
+              <Link to="/manter-disciplinas">
+                <button>Disciplinas</button>
+              </Link>
+              <Link to="/manter-notas">
+                <button>Notas</button>
+              </Link>
             </div>
+
+            {/* Links para os relatórios */}
+            <div className="relatorios-container">
+              <h3>Relatórios:</h3>
+              <Link to="/relatorios/aluno">
+                <button>Relatório de Alunos</button>
+              </Link>
+              <Link to="/relatorios/professor">
+                <button>Relatório de Professores</button>
+              </Link>
+              <Link to="/relatorios/turma">
+                <button>Relatório de Turmas</button>
+              </Link>
+            </div>
+
             <button className="back-btn" onClick={voltarParaSelecao}>
               Voltar
             </button>
